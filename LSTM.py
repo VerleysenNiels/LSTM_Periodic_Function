@@ -10,7 +10,6 @@ You first have to build the model by specifying the model architecture. Then you
 Trained weights can then be used to predict values of the periodic function.
 """
 
-import numpy as np
 from matplotlib import pyplot as plt
 plt.style.use('dark_background')
 from keras.models import Model
@@ -19,7 +18,7 @@ from keras.callbacks import ModelCheckpoint
 
 class PeriodicFunctionLSTM(object):
     
-    def build(self, architecture, shape):
+    def __init__(self, architecture, shape):
         inputs = Input(shape=(shape[1], shape[2]))
         l = inputs
         for layer in architecture:
