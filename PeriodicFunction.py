@@ -30,24 +30,33 @@ class PeriodicFunction:
         self.gaussian_dev = deviation
         
     def add_additional_frequency(self, amplitude, frequency):
-        print("ToDo")
+        self.additionalF = True
+        self.additional_ampl = amplitude
+        self.additional_freq = frequency
         
     def add_asymmetric_distributed_noise(self):
         print("ToDo")
         
     def value(self, time):
-        val = math.sin(time)
+        val = self.amplitude * math.sin(time * self.frequency)
         
         if self.gaussian:
             noise = np.random.normal(0, self.gaussian_dev, 1)
             val = val + noise[0]
         
+        if self.additionalF:
+            noise = self.additional_ampl * math.sin(time * self.additional_freq)
+            val = val + noise
+        
         return val
     
 if __name__ == '__main__':
     function = PeriodicFunction(15, 0.3)
-    v = function.value(16)
+    v = function.value(15)
     print(v)
     function.add_gaussian_noise(1.3)
-    v = function.value(33)
-    print(v)       
+    v = function.value(15)
+    print(v)
+    function.add_additional_frequency(2, 0.01)
+    v = function.value(15)
+    print(v)
