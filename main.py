@@ -13,15 +13,16 @@ with a given sampling frequency and amount of previous values given to the model
 This should then be done for varying frequencies, varying k and varying noise of the periodic function.
 """
 
-from LSTM import PeriodicFunctionLSTM
+from PeriodicFunctionLSTM import PeriodicFunctionLSTM
+from PeriodicFunction import PeriodicFunction
 from random import randint
 from random import seed
 
 """Define global variables"""
 EPOCHS = 15
 BATCH_SIZE = 20
-DATASET_SIZE = 100
-TESTSET_SIZE = 50
+DATASET_SIZE = 10
+TESTSET_SIZE = 5
 SEED = 36947
 
 """
@@ -40,8 +41,8 @@ def build_dataset(function, k, sampling_rate, test=False):
         values.append(function.value(sampling_rate * i))
     
     #Use generated values to build the training data
-    for i in range(0, DATASET_SIZE):
-        index = i + k # current value for Y; we start from element k in values list
+    for i in range(0, size):
+        index = i + k  # current value for Y; we start from element k in values list
         Y.append(values[index])
         x = []  #List with k previous values
         for j in range (index - k, index):
@@ -72,3 +73,4 @@ Collect the accuracies from these tests.
 if __name__ == '__main__':
     seed(SEED)
     print("ToDo")
+    
