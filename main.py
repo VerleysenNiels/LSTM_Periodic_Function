@@ -17,12 +17,13 @@ from PeriodicFunctionLSTM import PeriodicFunctionLSTM
 from PeriodicFunction import PeriodicFunction
 from random import randint
 from random import seed
+import numpy as np
 
 """Define global variables"""
 EPOCHS = 15
 BATCH_SIZE = 20
-DATASET_SIZE = 10
-TESTSET_SIZE = 5
+DATASET_SIZE = 200
+TESTSET_SIZE = 50
 SEED = 36947
 
 """
@@ -46,10 +47,10 @@ def build_dataset(function, k, sampling_rate, test=False):
         Y.append(values[index])
         x = []  #List with k previous values
         for j in range (index - k, index):
-            x.append(values[j-1])
-        X.append(x)
+            x.append(np.array([values[j-1]]))
+        X.append(np.array(x))
     
-    return X,Y
+    return np.array(X), np.array(Y)
 
 """
 Run basic experiment:
@@ -59,11 +60,11 @@ Run basic experiment:
     Test the accuracy of the model.
 """
 def run(function, architecture, k, sampling_rate):
-    model = PeriodicFunctionLSTM(architecture,[k])
+    model = PeriodicFunctionLSTM(architecture,k)
     X,Y = build_dataset(function, k, sampling_rate)
     model.train(X, Y, EPOCHS, BATCH_SIZE)
     X,Y = build_dataset(function, k, sampling_rate, test=True)
-    return model.evaluate(x=X, y=Y)
+    return model.evaluate(X, Y)
 
 """
 MAIN
@@ -72,5 +73,14 @@ Collect the accuracies from these tests.
 """
 if __name__ == '__main__':
     seed(SEED)
-    print("ToDo")
     
+    #test working of one run
+    function = PeriodicFunction(35, 2)
+    function.add_gaussian_noise(4)
+    
+    k = 5
+    sampling = 3
+    
+    result = run(function, [5], k, sampling)
+    
+    print(result)

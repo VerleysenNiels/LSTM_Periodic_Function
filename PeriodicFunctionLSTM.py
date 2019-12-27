@@ -13,11 +13,12 @@ Trained weights can then be used to predict values of the periodic function.
 from keras.models import Model
 from keras.layers import LSTM, Input
 from keras.callbacks import ModelCheckpoint
+from keras import losses
 
 class PeriodicFunctionLSTM:
     
-    def __init__(self, architecture, shape):
-        inputs = Input(shape=(shape[1], shape[2]))
+    def __init__(self, architecture, k):
+        inputs = Input(shape=(k,1))
         l = inputs
         for layer in architecture:
             l = LSTM(int(layer), dropout=0.5, recurrent_dropout=0.5, return_sequences=True)(l)
@@ -25,7 +26,7 @@ class PeriodicFunctionLSTM:
         outputs = LSTM(1)(l)
         
         self.model = Model(inputs=inputs, outputs=outputs)
-        self.model.compile(loss='huber_loss', optimizer='Adam', metrics=['accuracy'])
+        self.model.compile(loss=losses.mean_squared_error, optimizer='Adam', metrics=['accuracy'])
         
         self.model.summary()
         
@@ -42,3 +43,6 @@ class PeriodicFunctionLSTM:
     def predict(self, previous_vals):
         prediction = self.model.predict(previous_vals, verbose=0)
         return prediction
+    
+    def evaluate(self, x, y):
+        return self.model.evaluate(x=x, y=y)
