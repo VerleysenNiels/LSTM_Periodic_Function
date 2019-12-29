@@ -21,12 +21,12 @@ class PeriodicFunctionLSTM:
         inputs = Input(shape=(k,1))
         l = inputs
         for layer in architecture:
-            l = LSTM(int(layer), dropout=0.5, recurrent_dropout=0.5, return_sequences=True)(l)
+            l = LSTM(int(layer), return_sequences=True)(l)
             
         outputs = LSTM(1)(l)
         
         self.model = Model(inputs=inputs, outputs=outputs)
-        self.model.compile(loss=losses.mean_squared_error, optimizer='Adam', metrics=['accuracy'])
+        self.model.compile(loss=losses.mean_squared_error, optimizer='Adam', metrics=['accuracy', 'mae'])
         
         self.model.summary()
         
@@ -35,7 +35,8 @@ class PeriodicFunctionLSTM:
         self.callbacks_list = [checkpoint]
         
     def train(self, X, Y, epochs, batch_size):
-        self.model.fit(X, Y, epochs=epochs, batch_size=batch_size, callbacks=self.callbacks_list)
+        history = self.model.fit(X, Y, epochs=epochs, batch_size=batch_size, callbacks=self.callbacks_list)
+        return history
     
     def load(self, file):
         self.model.load_weights(file)

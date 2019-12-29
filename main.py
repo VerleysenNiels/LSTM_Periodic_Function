@@ -18,11 +18,13 @@ from PeriodicFunction import PeriodicFunction
 from random import randint
 from random import seed
 import numpy as np
+from matplotlib import pyplot
+import csv
 
 """Define global variables"""
-EPOCHS = 15
-BATCH_SIZE = 20
-DATASET_SIZE = 200
+EPOCHS = 50
+BATCH_SIZE = 200
+DATASET_SIZE = 200000
 TESTSET_SIZE = 50
 SEED = 36947
 
@@ -62,9 +64,9 @@ Run basic experiment:
 def run(function, architecture, k, sampling_rate):
     model = PeriodicFunctionLSTM(architecture,k)
     X,Y = build_dataset(function, k, sampling_rate)
-    model.train(X, Y, EPOCHS, BATCH_SIZE)
+    history = model.train(X, Y, EPOCHS, BATCH_SIZE)
     X,Y = build_dataset(function, k, sampling_rate, test=True)
-    return model.evaluate(X, Y)
+    return model.evaluate(X, Y), history
 
 """
 MAIN
@@ -74,13 +76,36 @@ Collect the accuracies from these tests.
 if __name__ == '__main__':
     seed(SEED)
     
-    #test working of one run
-    function = PeriodicFunction(35, 2)
-    function.add_gaussian_noise(4)
+    """Determine function"""
+    function = PeriodicFunction(1, 10)
+    #function.add_gaussian_noise(4)
     
-    k = 5
-    sampling = 3
+    """Determine different sampling rates to use"""
+    sampling_rates = [0.01, 0.1, 0.3, 1, 1.5, 2, 2.9, 5.11, 10, 20.3]
     
-    result = run(function, [5], k, sampling)
+    """Do experiment for each sampling rate on the function; search over differen k-values"""
+    result_dict = {}
+    for sampling_rate in sampling_rates:
+        results = {}
+        for i in range(0,6):
+            k = 2**i
+            result, history = run(function, [k, k], k, sampling_rate)
+            pyplot.plot(history.history['acc'])
+            pyplot.save("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_acc.png")
+            pyplot.clf()
+            pyplot.plot(history.history['mae'])
+            pyplot.save("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_mae.png")
+            pyplot.clf()            
+            results[k] = result
+            
+        result_dict[sampling_rate] = results
     
-    print(result)
+    """Write results dictionary as a table to a csv file"""
+    with open('/Results/table.csv', 'w') as outfile:
+        w = csv.writer(outfile)
+        w.writerow(['Sampling rate', 'k', 'mse', 'accuracy', 'mae'])
+        for rate, res in results.items():
+            for k, vals in res.items():
+                l = [rate, k]
+                l.extend(vals)
+                w.writerow(l)
