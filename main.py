@@ -81,7 +81,7 @@ if __name__ == '__main__':
     #function.add_gaussian_noise(4)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.001] #, 0.01, 0.1, 0.3, 0.5, 1, 2, 5, 10, 20.3]
+    sampling_rates = [0.001, 0.01, 0.1, 0.3, 0.5, 1, 2, 5, 10, 20.3]
     
     """Do experiment for each sampling rate on the function; search over differen k-values"""
     results = []
