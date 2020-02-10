@@ -81,31 +81,28 @@ if __name__ == '__main__':
     #function.add_gaussian_noise(4)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.01, 0.1, 0.3, 1, 1.5, 2, 2.9, 5.11, 10, 20.3]
+    sampling_rates = [0.001] #, 0.01, 0.1, 0.3, 0.5, 1, 2, 5, 10, 20.3]
     
     """Do experiment for each sampling rate on the function; search over differen k-values"""
-    result_dict = {}
+    results = []
     for sampling_rate in sampling_rates:
-        results = {}
         for i in range(0,6):
             k = 2**i
-            result, history = run(function, [k, k], k, sampling_rate)
+            result, history = run(function, [10, 10], k, sampling_rate)
             pyplot.plot(history.history['acc'])
-            pyplot.save("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_acc.png")
+            pyplot.savefig("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_acc.png")
             pyplot.clf()
-            pyplot.plot(history.history['mae'])
-            pyplot.save("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_mae.png")
-            pyplot.clf()            
-            results[k] = result
+            pyplot.plot(history.history['mean_absolute_error'])
+            pyplot.savefig("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_mae.png")
+            pyplot.clf()
+            templist = [sampling_rate, k]
+            templist.extend(result)            
+            results.append(templist)
             
-        result_dict[sampling_rate] = results
     
     """Write results dictionary as a table to a csv file"""
-    with open('/Results/table.csv', 'w') as outfile:
+    with open('./Results/table.csv', 'w') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Sampling rate', 'k', 'mse', 'accuracy', 'mae'])
-        for rate, res in results.items():
-            for k, vals in res.items():
-                l = [rate, k]
-                l.extend(vals)
-                w.writerow(l)
+        for row in results:
+            w.writerow(row)
