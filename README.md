@@ -1,2 +1,2 @@
 # LSTM_Periodic_Function
-Experiment for my thesis. In this repository I will test the predictive quality of an LSTM on a periodic function with different sampling rates, types of noise and amount of previous values given as input.
+Experiment for my thesis. In this repository I will test the predictive quality of an LSTM on a periodic function with different sampling rates, types (and levels) of noise and amount of previous values given as input. The training progress will be saved as raw data under Results/Training. The trained weights are stored in the Weights folder. Finally the trained network is tested on the periodic function and the result is stored in a table in the Results folder.
