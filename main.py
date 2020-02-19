@@ -8,17 +8,16 @@ Created on Sun Dec 22 18:16:18 2019
 Main script for this experiment.
 
 The basic function is building a LSTM model and training it on a given periodic function with/without noise, 
-with a given sampling frequency and amount of previous values given to the model (k). The accuracy of this model is then tested.
+with a given sampling frequency and amount of previous values given to the model (k). The accuracy and absolute error of this model are then tested.
 
 This should then be done for varying frequencies, varying k and varying noise of the periodic function.
 """
-
+import pickle
 from PeriodicFunctionLSTM import PeriodicFunctionLSTM
 from PeriodicFunction import PeriodicFunction
 from random import randint
 from random import seed
 import numpy as np
-from matplotlib import pyplot
 import csv
 
 """Define global variables"""
@@ -77,11 +76,12 @@ if __name__ == '__main__':
     seed(SEED)
     
     """Determine function"""
-    function = PeriodicFunction(1, 10)
+    function = PeriodicFunction(10, 0.016667)
     #function.add_gaussian_noise(4)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.001, 0.01, 0.1, 0.3, 0.5, 1, 2, 5, 10, 20.3]
+    sampling_rates = [0.016667, 1, 15, 30, 45, 50, 55] # 1 second, 1 minute, 15 minutes, ...
+    """As the period of the periodic function is 60 minutes, there should be no difference between the first four sampling rates (Nyquist)"""
     
     """Do experiment for each sampling rate on the function; search over differen k-values"""
     results = []
@@ -89,12 +89,8 @@ if __name__ == '__main__':
         for i in range(0,6):
             k = 2**i
             result, history = run(function, [10, 10], k, sampling_rate)
-            pyplot.plot(history.history['acc'])
-            pyplot.savefig("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_acc.png")
-            pyplot.clf()
-            pyplot.plot(history.history['mean_absolute_error'])
-            pyplot.savefig("./Results/sample_" + str(sampling_rate) + "_k_" + str(k) + "_mae.png")
-            pyplot.clf()
+            with open("./Results/Training/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
+                pickle.dump(history, outfile)
             templist = [sampling_rate, k]
             templist.extend(result)            
             results.append(templist)

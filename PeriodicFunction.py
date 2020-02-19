@@ -23,7 +23,7 @@ class PeriodicFunction:
         self.additionalF = False
         self.asymmetric = False
         self.amplitude = amplitude
-        self.frequency = frequency
+        self.frequency = frequency * 6.283185
         
     def add_gaussian_noise(self, deviation):
         self.gaussian = True
