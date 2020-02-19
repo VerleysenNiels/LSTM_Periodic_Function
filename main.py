@@ -21,7 +21,7 @@ import numpy as np
 import csv
 
 """Define global variables"""
-EPOCHS = 50
+EPOCHS = 35
 BATCH_SIZE = 200
 DATASET_SIZE = 200000
 TESTSET_SIZE = 50
@@ -60,11 +60,11 @@ Run basic experiment:
     Train the model on this dataset.
     Test the accuracy of the model.
 """
-def run(function, architecture, k, sampling_rate):
+def run(training_function, test_function, architecture, k, sampling_rate):
     model = PeriodicFunctionLSTM(architecture,k)
-    X,Y = build_dataset(function, k, sampling_rate)
+    X,Y = build_dataset(training_function, k, sampling_rate)
     history = model.train(X, Y, EPOCHS, BATCH_SIZE)
-    X,Y = build_dataset(function, k, sampling_rate, test=True)
+    X,Y = build_dataset(test_function, k, sampling_rate, test=True)
     return model.evaluate(X, Y), history
 
 """
@@ -76,8 +76,10 @@ if __name__ == '__main__':
     seed(SEED)
     
     """Determine function"""
-    function = PeriodicFunction(10, 0.016667)
-    #function.add_gaussian_noise(4)
+    training_function = PeriodicFunction(10, 0.016667)
+    training_function.add_gaussian_noise(1)
+
+    test_function = PeriodicFunction(10, 0.016667)
     
     """Determine different sampling rates to use"""
     sampling_rates = [0.016667, 1, 15, 30, 45, 50, 55] # 1 second, 1 minute, 15 minutes, ...
@@ -88,7 +90,7 @@ if __name__ == '__main__':
     for sampling_rate in sampling_rates:
         for i in range(0,6):
             k = 2**i
-            result, history = run(function, [10, 10], k, sampling_rate)
+            result, history = run(training_function, test_function, [10, 10], k, sampling_rate)
             with open("./Results/Training/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
