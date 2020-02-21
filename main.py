@@ -77,7 +77,7 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_gaussian_noise(1)
+    training_function.add_gaussian_noise(0.2)
 
     test_function = PeriodicFunction(10, 0.016667)
     
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     sampling_rates = [0.016667, 1, 15, 30, 45, 50, 55] # 1 second, 1 minute, 15 minutes, ...
     """As the period of the periodic function is 60 minutes, there should be no difference between the first four sampling rates (Nyquist)"""
     
-    """Do experiment for each sampling rate on the function; search over differen k-values"""
+    """Do experiment for each sampling rate on the function; search over different k-values"""
     results = []
     for sampling_rate in sampling_rates:
         for i in range(0,6):
