@@ -22,6 +22,9 @@ from random import seed
 import numpy as np
 import csv
 
+"""Models are too small, single cpu is faster"""
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+
 """Define global variables"""
 EPOCHS = 35
 BATCH_SIZE = 200
@@ -80,13 +83,12 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    #training_function.add_gaussian_noise(0.2)
+    training_function.add_gaussian_noise(0.2)
 
     test_function = PeriodicFunction(10, 0.016667)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.0016667, 0.016667, 1, 15, 30, 45, 55] # 0.1 second, 1 second, 1 minute, 15 minutes, ...
-    """As the period of the periodic function is 60 minutes, there should be no difference between the first four sampling rates (Nyquist)"""
+    sampling_rates = [0.0016667, 0.016667, 1, 15, 30, 55] # 0.1 second, 1 second, 1 minute, 15 minutes, ...
     
     """Do experiment for each sampling rate on the function; search over different k-values"""
     results = []
