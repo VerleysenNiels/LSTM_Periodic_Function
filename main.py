@@ -12,6 +12,8 @@ with a given sampling frequency and amount of previous values given to the model
 
 This should then be done for varying frequencies, varying k and varying noise of the periodic function.
 """
+
+import os
 import pickle
 from PeriodicFunctionLSTM import PeriodicFunctionLSTM
 from PeriodicFunction import PeriodicFunction
@@ -65,7 +67,8 @@ def run(training_function, test_function, architecture, k, sampling_rate):
     X,Y = build_dataset(training_function, k, sampling_rate)
     history = model.train(X, Y, EPOCHS, BATCH_SIZE)
     X,Y = build_dataset(test_function, k, sampling_rate, test=True)
-    return model.evaluate(X, Y), history
+    eval = model.evaluate(X, Y)
+    return eval, history
 
 """
 MAIN
@@ -77,12 +80,12 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_gaussian_noise(0.2)
+    #training_function.add_gaussian_noise(0.2)
 
     test_function = PeriodicFunction(10, 0.016667)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.016667, 1, 15, 30, 45, 50, 55] # 1 second, 1 minute, 15 minutes, ...
+    sampling_rates = [0.0016667, 0.016667, 1, 15, 30, 45, 55] # 0.1 second, 1 second, 1 minute, 15 minutes, ...
     """As the period of the periodic function is 60 minutes, there should be no difference between the first four sampling rates (Nyquist)"""
     
     """Do experiment for each sampling rate on the function; search over different k-values"""
