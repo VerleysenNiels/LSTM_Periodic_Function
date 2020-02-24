@@ -85,6 +85,7 @@ if __name__ == '__main__':
     training_function = PeriodicFunction(10, 0.016667)
     training_function.add_additional_frequency(3, 0.1)
 
+
     test_function = PeriodicFunction(10, 0.016667)
     
     """Determine different sampling rates to use"""
