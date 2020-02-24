@@ -32,7 +32,7 @@ class PeriodicFunction:
     def add_additional_frequency(self, amplitude, frequency):
         self.additionalF = True
         self.additional_ampl = amplitude
-        self.additional_freq = frequency
+        self.additional_freq = frequency * 6.283185
         
     def add_asymmetric_distributed_noise(self):
         print("ToDo")
