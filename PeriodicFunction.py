@@ -14,6 +14,8 @@ An example is given below.
 """
 
 import math
+import random
+
 import numpy as np
 
 class PeriodicFunction:
@@ -21,7 +23,7 @@ class PeriodicFunction:
     def __init__(self, amplitude, frequency):
         self.gaussian = False
         self.additionalF = False
-        self.asymmetric = False
+        self.random_outliers = False
         self.amplitude = amplitude
         self.frequency = frequency * 6.283185
         
@@ -33,9 +35,13 @@ class PeriodicFunction:
         self.additionalF = True
         self.additional_ampl = amplitude
         self.additional_freq = frequency * 6.283185
-        
-    def add_asymmetric_distributed_noise(self):
-        print("ToDo")
+
+    # Use poisson distribution with given lambda and multiplier
+    def add_random_outliers(self, probability, lam, multi):
+        self.random_outliers = True
+        self.ro_probability = probability
+        self.lam = lam
+        self.multi = multi
         
     def value(self, time):
         val = self.amplitude * math.sin(time * self.frequency)
@@ -47,7 +53,12 @@ class PeriodicFunction:
         if self.additionalF:
             noise = self.additional_ampl * math.sin(time * self.additional_freq)
             val = val + noise
-        
+
+        if self.random_outliers:
+            if self.ro_probability < random.uniform(0, 1):
+                # Returned value is sampled from another distribution (here I use the Poisson distribution)
+                val = np.random.poisson(self.lam, 1)[0] * self.multi
+
         return val
     
 if __name__ == '__main__':
@@ -58,5 +69,8 @@ if __name__ == '__main__':
     v = function.value(15)
     print(v)
     function.add_additional_frequency(2, 0.01)
+    v = function.value(15)
+    print(v)
+    function.add_random_outliers(0.5, 4.0, 1.3)
     v = function.value(15)
     print(v)
