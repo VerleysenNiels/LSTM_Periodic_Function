@@ -83,7 +83,7 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_additional_frequency(1, 0.0001)
+    training_function.add_additional_frequency(3, 0.1)
 
     test_function = PeriodicFunction(10, 0.016667)
     
