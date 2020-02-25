@@ -55,7 +55,7 @@ class PeriodicFunction:
             val = val + noise
 
         if self.random_outliers:
-            if self.ro_probability < random.uniform(0, 1):
+            if self.ro_probability > random.uniform(0, 1):
                 # Returned value is sampled from another distribution (here I use the Poisson distribution)
                 val = np.random.poisson(self.lam, 1)[0] * self.multi
 
@@ -71,6 +71,6 @@ if __name__ == '__main__':
     function.add_additional_frequency(2, 0.01)
     v = function.value(15)
     print(v)
-    function.add_random_outliers(0.5, 4.0, 1.3)
+    function.add_random_outliers(0.1, 4.0, 8)
     v = function.value(15)
     print(v)

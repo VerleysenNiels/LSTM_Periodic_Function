@@ -83,7 +83,8 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_random_outliers(0.1, 4, 8)
+    training_function.add_gaussian_noise(2)
+    training_function.add_additional_frequency(1, 0.001)
 
     test_function = PeriodicFunction(10, 0.016667)
     
