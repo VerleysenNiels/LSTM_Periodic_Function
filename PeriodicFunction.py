@@ -26,6 +26,7 @@ class PeriodicFunction:
         self.random_outliers = False
         self.increasing_amp = False
         self.increasing_freq = False
+        self.increasing_both = False
         self.amplitude = amplitude
         self.frequency = frequency * 6.283185
         
@@ -52,6 +53,14 @@ class PeriodicFunction:
         self.increasing_freq_b = b
         self.increasing_freq_ampl = ampl
 
+    # Frequency and amplitude of disturbing frequency increases linearly
+    def add_disturbingf_increasing_both(self, a_freq, b_freq, a_amp, b_amp):
+        self.increasing_both = True
+        self.increasing_a_freq = a_freq
+        self.increasing_b_freq = b_freq
+        self.increasing_a_amp = a_amp
+        self.increasing_b_amp = b_amp
+
     # Use poisson distribution with given lambda and multiplier
     def add_random_outliers(self, probability, lam, multi):
         self.random_outliers = True
@@ -76,6 +85,10 @@ class PeriodicFunction:
 
         if self.increasing_amp:
             noise = (self.increasing_amp_a * time + self.increasing_amp_b) * math.sin(time * self.increasing_amp_f)
+            val = val + noise
+
+        if self.increasing_both:
+            noise = (self.increasing_a_amp * time + self.increasing_b_amp) * math.sin(time * (self.increasing_a_freq * time + self.increasing_b_freq) * 6.283185)
             val = val + noise
 
         if self.random_outliers:
