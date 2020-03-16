@@ -106,6 +106,6 @@ if __name__ == '__main__':
     """Write results dictionary as a table to a csv file"""
     with open('./Results/table.csv', 'w') as outfile:
         w = csv.writer(outfile)
-        w.writerow(['Sampling rate', 'k', 'mae', 'accuracy'])
+        w.writerow(['Sampling rate', 'k', 'mae', 'stdv'])
         for row in results:
             w.writerow(row)
