@@ -14,6 +14,8 @@ from keras.models import Model
 from keras.layers import LSTM, Input
 from keras.callbacks import ModelCheckpoint
 from keras import losses
+import numpy as np
+import csv
 
 class PeriodicFunctionLSTM:
     
@@ -26,9 +28,9 @@ class PeriodicFunctionLSTM:
         outputs = LSTM(1)(l)
         
         self.model = Model(inputs=inputs, outputs=outputs)
-        self.model.compile(loss=losses.mean_squared_error, optimizer='Adam', metrics=['accuracy', 'mae'])
+        self.model.compile(loss=losses.mean_absolute_error, optimizer='Adam', metrics=['accuracy', 'mae'])
         
-        #self.model.summary()
+        self.model.summary()
         
         filepath="./Weights/weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
         checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
@@ -44,6 +46,29 @@ class PeriodicFunctionLSTM:
     def predict(self, previous_vals):
         prediction = self.model.predict(previous_vals, verbose=0)
         return prediction
-    
-    def evaluate(self, x, y):
-        return self.model.evaluate(x=x, y=y)
+
+    """ 
+        Own evaluation method
+        Expects a set of input-output pairs and returns the average loss and the standard deviation of the loss
+        It also outputs a csv file with all predictions and baselines, allowing us to make a plot afterwards
+    """
+    def evaluate(self, x, y, file):
+        losses = []
+        with open(file, 'w') as outfile:
+            w = csv.writer(outfile)
+            w.writerow(['Real', 'Predicted', 'Previous_measured', 'Mean_k_previous_measured'])
+            xhat = []
+            for i in range(0,len(x)):
+                if len(xhat) == 0:
+                    xhat = x[i]
+                yhat = self.model.predict(np.expand_dims(xhat, axis=0))
+                losses.append(abs(yhat - y[i]))
+                w.writerow([y[i], yhat[0][0], x[i][-1][0], np.mean(x[i])])
+                xhat = np.delete(xhat, 0)
+                xhat = np.append(xhat, yhat)
+                xhat = np.expand_dims(xhat, axis=1)
+
+        losses = np.array(losses)
+        return np.mean(losses), np.std(losses)
+
+        #return self.model.evaluate(x=x, y=y) # old

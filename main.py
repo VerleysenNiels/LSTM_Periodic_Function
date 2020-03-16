@@ -69,8 +69,9 @@ def run(training_function, test_function, architecture, k, sampling_rate):
     model = PeriodicFunctionLSTM(architecture,k)
     X,Y = build_dataset(training_function, k, sampling_rate)
     history = model.train(X, Y, EPOCHS, BATCH_SIZE)
+    model.model.save("./Trained/sample_" + str(sampling_rate) + "_k_" + str(k))
     X,Y = build_dataset(test_function, k, sampling_rate, test=True)
-    eval = model.evaluate(X, Y)
+    eval = model.evaluate(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv")
     return eval, history
 
 """
@@ -83,7 +84,6 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_disturbingf_increasing_both(0.01, 0.001, 1, 0.001)
 
     test_function = PeriodicFunction(10, 0.016667)
     
@@ -106,6 +106,6 @@ if __name__ == '__main__':
     """Write results dictionary as a table to a csv file"""
     with open('./Results/table.csv', 'w') as outfile:
         w = csv.writer(outfile)
-        w.writerow(['Sampling rate', 'k', 'mse', 'accuracy', 'mae'])
+        w.writerow(['Sampling rate', 'k', 'mae', 'accuracy'])
         for row in results:
             w.writerow(row)
