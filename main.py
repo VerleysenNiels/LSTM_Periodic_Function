@@ -84,12 +84,13 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_disturbing_frequency(4, 2)
+    training_function.add_random_outliers(0.0001, 4, 10)
+    #training_function.add_disturbing_frequency(4, 2)
 
     test_function = PeriodicFunction(10, 0.016667)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.0016667, 0.016667, 1, 15, 30, 55] # 0.1 second, 1 second, 1 minute, 15 minutes, ...
+    sampling_rates = [0.0016667, 0.016667, 1] # 0.1 second, 1 second, 1 minute, 15 minutes, ...
     
     """Do experiment for each sampling rate on the function; search over different k-values"""
     results = []
