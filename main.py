@@ -90,7 +90,7 @@ if __name__ == '__main__':
     test_function = PeriodicFunction(10, 0.016667)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.0016667, 0.016667, 1] # 0.1 second, 1 second, 1 minute, 15 minutes, ...
+    sampling_rates = [0.0016667, 0.016667, 1] # 0.1 second, 1 second, 1 minute
     
     """Do experiment for each sampling rate on the function; search over different k-values"""
     results = []
