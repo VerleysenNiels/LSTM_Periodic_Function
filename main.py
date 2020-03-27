@@ -29,7 +29,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 EPOCHS = 35
 BATCH_SIZE = 200
 DATASET_SIZE = 200000
-TESTSET_SIZE = 50
+TESTSET_SIZE = 700
 SEED = 36947
 
 """
@@ -84,20 +84,20 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_disturbing_signal(4, 2)
+    training_function.add_disturbing_signal(4, 0.4)
 
     test_function = PeriodicFunction(10, 0.016667)
-    test_function.add_disturbing_decaying_amp(0.01, 4, 60, 2)
+    test_function.add_disturbing_decaying_amp(0.01, 4, 60, 0.4)
     
     """Determine different sampling rates to use"""
-    sampling_rates = [0.0016667, 0.016667, 1] # 0.1 second, 1 second, 1 minute
+    sampling_rates = [1] # 0.1 second: 0.0016667, 1 second: 0.016667, 1 minute
     
     """Do experiment for each sampling rate on the function; search over different k-values"""
     results = []
     for sampling_rate in sampling_rates:
         for i in range(0,6):
             k = 2**i
-            result, history = run(training_function, test_function, [10, 10], k, sampling_rate)
+            result, history = run(training_function, test_function, [32, 16, 8], k, sampling_rate)
             with open("./Results/Training/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
@@ -106,7 +106,7 @@ if __name__ == '__main__':
             
     
     """Write results dictionary as a table to a csv file"""
-    with open('./Results/table.csv', 'w') as outfile:
+    with open('./Results/table.csv', 'w', newline='') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Sampling rate', 'k', 'mae', 'stdv'])
         for row in results:

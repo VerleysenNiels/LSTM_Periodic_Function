@@ -55,7 +55,7 @@ class PeriodicFunctionLSTM:
     """
     def evaluate(self, x, y, file):
         losses = []
-        with open(file, 'w') as outfile:
+        with open(file, 'w', newline='') as outfile:
             w = csv.writer(outfile)
             w.writerow(['Real', 'Predicted', 'Previous_measured', 'Mean_k_previous_measured'])
             xhat = []
@@ -72,4 +72,3 @@ class PeriodicFunctionLSTM:
         losses = np.array(losses)
         return np.mean(losses), np.std(losses)
 
-        #return self.model.evaluate(x=x, y=y) # old

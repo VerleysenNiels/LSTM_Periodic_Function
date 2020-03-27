@@ -106,8 +106,8 @@ class PeriodicFunction:
                 noise = self.decaying_amp_amplitude * math.sin(time * self.decaying_amp_f)
             else:
                 # Decay has started, calculate amplitude of high frequency signal
-                amplitude = -self.decaying_amp_decay * time + self.decaying_amp_amplitude
-                if amplitude <= 0:
+                amplitude = self.decaying_amp_amplitude - (self.decaying_amp_decay * (time-self.decaying_amp_start))
+                if amplitude < 0:
                     # High frequency signal is gone
                     noise = 0
                 else:
@@ -123,7 +123,8 @@ class PeriodicFunction:
         return val
     
 if __name__ == '__main__':
-    function = PeriodicFunction(15, 0.3)
+    function = PeriodicFunction(10, 0.016667)
+    """
     v = function.value(15)
     print(v)
     function.add_gaussian_noise(1.3)
@@ -137,3 +138,14 @@ if __name__ == '__main__':
     print(v)
     function.add_disturbing_increasing_amp(10, 1, 0.1)
     function.add_disturbing_increasing_freq(0.1, 1, 10)
+    """
+
+    #Test decay
+    import matplotlib.pyplot as plt
+
+    function.add_disturbing_decaying_amp(0.01, 4, 60, 0.4)
+    vals = []
+    for i in range(0, 700):
+        vals.append(function.value(i))
+    plt.plot(vals)
+    plt.show()
