@@ -84,9 +84,10 @@ if __name__ == '__main__':
     
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
-    training_function.add_gaussian_noise(2)
+    training_function.add_disturbing_signal(4, 2)
 
     test_function = PeriodicFunction(10, 0.016667)
+    test_function.add_disturbing_decaying_amp(0.01, 4, 60, 2)
     
     """Determine different sampling rates to use"""
     sampling_rates = [0.0016667, 0.016667, 1] # 0.1 second, 1 second, 1 minute

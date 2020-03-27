@@ -27,6 +27,7 @@ class PeriodicFunction:
         self.increasing_amp = False
         self.increasing_freq = False
         self.increasing_both = False
+        self.decaying_amp = False
         self.amplitude = amplitude
         self.frequency = frequency * 6.283185
         
@@ -34,27 +35,35 @@ class PeriodicFunction:
         self.gaussian = True
         self.gaussian_dev = deviation
         
-    def add_disturbing_frequency(self, amplitude, frequency):
+    def add_disturbing_signal(self, amplitude, frequency):
         self.additionalF = True
         self.additional_ampl = amplitude
         self.additional_freq = frequency * 6.283185
 
-    #Amplitude of disturbing frequency increases linearly
-    def add_disturbingf_increasing_amp(self, a, b, freq):
+    # Amplitude of disturbing signal decays over time from start until it is zero
+    def add_disturbing_decaying_amp(self, decay, amplitude, start, freq):
+        self.decaying_amp = True
+        self.decaying_amp_decay = decay
+        self.decaying_amp_start = start
+        self.decaying_amp_amplitude = amplitude
+        self.decaying_amp_f = freq * 6.283185
+
+    #Amplitude of disturbing signal increases linearly
+    def add_disturbing_increasing_amp(self, a, b, freq):
         self.increasing_amp = True
         self.increasing_amp_a = a
         self.increasing_amp_b = b
         self.increasing_amp_f = freq * 6.283185
 
-    # Frequency of disturbing frequency increases linearly
-    def add_disturbingf_increasing_freq(self, a, b, ampl):
+    # Frequency of disturbing signal increases linearly
+    def add_disturbing_increasing_freq(self, a, b, ampl):
         self.increasing_freq = True
         self.increasing_freq_a = a
         self.increasing_freq_b = b
         self.increasing_freq_ampl = ampl
 
-    # Frequency and amplitude of disturbing frequency increases linearly
-    def add_disturbingf_increasing_both(self, a_freq, b_freq, a_amp, b_amp):
+    # Frequency and amplitude of disturbing signal increases linearly
+    def add_disturbing_increasing_both(self, a_freq, b_freq, a_amp, b_amp):
         self.increasing_both = True
         self.increasing_a_freq = a_freq
         self.increasing_b_freq = b_freq
@@ -91,6 +100,21 @@ class PeriodicFunction:
             noise = (self.increasing_a_amp * time + self.increasing_b_amp) * math.sin(time * (self.increasing_a_freq * time + self.increasing_b_freq) * 6.283185)
             val = val + noise
 
+        if self.decaying_amp:
+            if time < self.decaying_amp_start:
+                # Decay has not started yet
+                noise = self.decaying_amp_amplitude * math.sin(time * self.decaying_amp_f)
+            else:
+                # Decay has started, calculate amplitude of high frequency signal
+                amplitude = -self.decaying_amp_decay * time + self.decaying_amp_amplitude
+                if amplitude <= 0:
+                    # High frequency signal is gone
+                    noise = 0
+                else:
+                    # High frequency signal is decaying
+                    noise = amplitude * math.sin(time * self.decaying_amp_f)
+            val = val + noise
+
         if self.random_outliers:
             if self.ro_probability > random.uniform(0, 1):
                 # Returned value is sampled from another distribution (here I use the Poisson distribution)
@@ -105,11 +129,11 @@ if __name__ == '__main__':
     function.add_gaussian_noise(1.3)
     v = function.value(15)
     print(v)
-    function.add_disturbing_frequency(2, 0.01)
+    function.add_disturbing_signal(2, 0.01)
     v = function.value(15)
     print(v)
     function.add_random_outliers(0.1, 4.0, 8)
     v = function.value(15)
     print(v)
-    function.add_disturbingf_increasing_amp(10, 1, 0.1)
-    function.add_disturbingf_increasing_freq(0.1, 1, 10)
+    function.add_disturbing_increasing_amp(10, 1, 0.1)
+    function.add_disturbing_increasing_freq(0.1, 1, 10)
