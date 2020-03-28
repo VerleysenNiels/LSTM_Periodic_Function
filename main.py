@@ -23,7 +23,7 @@ import numpy as np
 import csv
 
 """Models are too small, single cpu is faster"""
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+#os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
 """Define global variables"""
 EPOCHS = 35
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     for sampling_rate in sampling_rates:
         for i in range(0,6):
             k = 2**i
-            result, history = run(training_function, test_function, [32, 16, 8], k, sampling_rate)
+            result, history = run(training_function, test_function, [128, 64, 32], k, sampling_rate)
             with open("./Results/Training/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
