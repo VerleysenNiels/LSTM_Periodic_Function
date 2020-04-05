@@ -72,3 +72,18 @@ class PeriodicFunctionLSTM:
         losses = np.array(losses)
         return np.mean(losses), np.std(losses)
 
+    """
+        Predict the next M values given the initial k values as Start
+    """
+    def predict_next_M(self, Start, M):
+        predictions = []
+        xhat = []
+        for i in range(0, M):
+            if len(xhat) == 0:
+                xhat = Start
+            yhat = self.model.predict(np.expand_dims(xhat, axis=0))
+            predictions.append(yhat[0][0])
+            xhat = np.delete(xhat, 0)
+            xhat = np.append(xhat, yhat)
+            xhat = np.expand_dims(xhat, axis=1)
+        return predictions
