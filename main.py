@@ -22,11 +22,13 @@ from random import seed
 import numpy as np
 import csv
 
-"""Models are too small, single cpu is faster"""
+"""
+Uncomment for small models, as a single cpu is faster in that case
+"""
 #os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
 """Define global variables"""
-EPOCHS = 35
+EPOCHS = 50
 BATCH_SIZE = 200
 DATASET_SIZE = 200000
 TESTSET_SIZE = 700
@@ -87,21 +89,20 @@ if __name__ == '__main__':
     training_function.add_disturbing_signal(4, 0.4)
 
     test_function = PeriodicFunction(10, 0.016667)
-    test_function.add_disturbing_decaying_amp(0.01, 4, 60, 0.4)
+    test_function.add_disturbing_signal(4, 0.4)
     
     """Determine different sampling rates to use"""
     sampling_rates = [1] # 0.1 second: 0.0016667, 1 second: 0.016667, 1 minute
     
-    """Do experiment for each sampling rate on the function; search over different k-values"""
+    """Do experiment for each sampling rate on the function"""
     results = []
     for sampling_rate in sampling_rates:
-        for i in range(0,6):
-            k = 2**i
-            result, history = run(training_function, test_function, [128, 64, 32], k, sampling_rate)
-            with open("./Results/Training/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
+        for k in [128]:
+            result, history = run(training_function, test_function, [200, 200, 200], k, sampling_rate)
+            with open("./Results/Training_history/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
-            templist.extend(result)            
+            templist.extend(result)
             results.append(templist)
             
     
