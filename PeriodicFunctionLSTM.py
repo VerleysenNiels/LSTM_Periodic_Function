@@ -11,7 +11,7 @@ Trained weights can then be used to predict values of the periodic function.
 """
 
 from keras.models import Model
-from keras.layers import LSTM, Input, Dense
+from keras.layers import LSTM, Input, Dense#, Conv1D, MaxPooling1D
 from keras.callbacks import ModelCheckpoint
 from keras import losses
 import numpy as np
@@ -19,13 +19,24 @@ import csv
 
 class PeriodicFunctionLSTM:
     
-    def __init__(self, architecture, k):
+    def __init__(self, architecture_LSTM, k, architecture_CNN = [], architecture_FC = []):
         inputs = Input(shape=(k,1))
         l = inputs
-        for i in range(0, len(architecture)-1):
-            l = LSTM(int(architecture[i]), return_sequences=True)(l)
 
-        l = LSTM(int(architecture[-1]), return_sequences=False)(l)
+        #if len(architecture_CNN) > 0:
+            #for layer in architecture_CNN:
+                #l = Conv1D(layer[0], layer[1])(l)
+                #l = MaxPooling1D()(l)
+
+        for i in range(0, len(architecture_LSTM)-1):
+            l = LSTM(int(architecture_LSTM[i]), return_sequences=True)(l)
+
+        l = LSTM(int(architecture_LSTM[-1]), return_sequences=False)(l)
+
+        if len(architecture_FC) > 0:
+            for layer in architecture_FC:
+                l = Dense(layer)(l)
+
         outputs = Dense(1)(l)
         
         self.model = Model(inputs=inputs, outputs=outputs)

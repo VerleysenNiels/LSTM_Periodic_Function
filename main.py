@@ -67,8 +67,8 @@ Run basic experiment:
     Train the model on this dataset.
     Test the accuracy of the model.
 """
-def run(training_function, test_function, architecture, k, sampling_rate):
-    model = PeriodicFunctionLSTM(architecture,k)
+def run(training_function, test_function, architecture_LSTM, k, sampling_rate, architecture_CNN=[], architecture_FC=[]):
+    model = PeriodicFunctionLSTM(architecture_LSTM, k, architecture_CNN=architecture_CNN, architecture_FC=architecture_FC)
     X,Y = build_dataset(training_function, k, sampling_rate)
     history = model.train(X, Y, EPOCHS, BATCH_SIZE)
     model.model.save("./Trained/sample_" + str(sampling_rate) + "_k_" + str(k))
@@ -97,8 +97,8 @@ if __name__ == '__main__':
     """Do experiment for each sampling rate on the function"""
     results = []
     for sampling_rate in sampling_rates:
-        for k in [128]:
-            result, history = run(training_function, test_function, [200, 200, 200], k, sampling_rate)
+        for k in [32, 64, 128]:
+            result, history = run(training_function, test_function, [20, 20], k, sampling_rate, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
             with open("./Results/Training_history/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
