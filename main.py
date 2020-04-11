@@ -98,7 +98,7 @@ if __name__ == '__main__':
     results = []
     for sampling_rate in sampling_rates:
         for k in [32, 64, 128]:
-            result, history = run(training_function, test_function, [20, 20], k, sampling_rate, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
+            result, history = run(training_function, test_function, [200, 200], k, sampling_rate, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
             with open("./Results/Training_history/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
