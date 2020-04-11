@@ -29,9 +29,9 @@ class PeriodicFunctionLSTM:
                 #l = MaxPooling1D()(l)
 
         for i in range(0, len(architecture_LSTM)-1):
-            l = LSTM(int(architecture_LSTM[i]), return_sequences=True)(l)
+            l = LSTM(int(architecture_LSTM[i]), activation='sigmoid', return_sequences=True)(l)
 
-        l = LSTM(int(architecture_LSTM[-1]), return_sequences=False)(l)
+        l = LSTM(int(architecture_LSTM[-1]), activation='sigmoid', return_sequences=False)(l)
 
         if len(architecture_FC) > 0:
             for layer in architecture_FC:
