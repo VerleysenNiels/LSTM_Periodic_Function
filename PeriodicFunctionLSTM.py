@@ -19,7 +19,7 @@ import csv
 
 class PeriodicFunctionLSTM:
     
-    def __init__(self, architecture_LSTM, k, architecture_CNN = [], architecture_FC = []):
+    def __init__(self, architecture_LSTM, k, architecture_CNN = [], architecture_FC = [], m=1):
         inputs = Input(shape=(k,1))
         l = inputs
 
@@ -37,7 +37,7 @@ class PeriodicFunctionLSTM:
             for layer in architecture_FC:
                 l = Dense(layer)(l)
 
-        outputs = Dense(1)(l)
+        outputs = Dense(m)(l)
         
         self.model = Model(inputs=inputs, outputs=outputs)
         self.model.compile(loss=losses.mean_absolute_error, optimizer='Adam', metrics=['accuracy', 'mae'])
@@ -60,11 +60,11 @@ class PeriodicFunctionLSTM:
         return prediction
 
     """ 
-        Own evaluation method
+        Own evaluation method (for predicting one step in the future and then using this prediction as part of the input for the next prediction)
         Expects a set of input-output pairs and returns the average loss and the standard deviation of the loss
         It also outputs a csv file with all predictions and baselines, allowing us to make a plot afterwards
     """
-    def evaluate(self, x, y, file):
+    def evaluate_m1(self, x, y, file):
         losses = []
         with open(file, 'w', newline='') as outfile:
             w = csv.writer(outfile)
@@ -78,6 +78,34 @@ class PeriodicFunctionLSTM:
                 w.writerow([y[i], yhat[0][0], x[i][-1][0], np.mean(x[i])])
                 xhat = np.delete(xhat, 0)
                 xhat = np.append(xhat, yhat)
+                xhat = np.expand_dims(xhat, axis=1)
+
+        losses = np.array(losses)
+        return np.mean(losses), np.std(losses)
+
+    """ 
+        Same evaluation as before, but changed to allow multi-step predictions
+        Expects a set of input-output pairs and returns the average loss and the standard deviation of the loss
+        It also outputs a csv file with all predictions, allowing us to make a plot afterwards
+    """
+    def evaluate_multi_step(self, x, y, file, m, k):
+        losses = []
+        with open(file, 'w', newline='') as outfile:
+            w = csv.writer(outfile)
+            w.writerow(['Real', 'Predicted', 'Previous_measured', 'Mean_k_previous_measured'])
+            xhat = x[0]
+            for i in range(0, round(len(y)/m)):
+                yhat = self.model.predict(np.expand_dims(xhat, axis=0))
+                for j in range(0, m):
+                    losses.append(abs(yhat[0][j] - y[i*m +j]))
+                    w.writerow([y[i*m +j][0], yhat[0][j], x[i][-1][0], np.mean(x[i])])
+                if k > m:
+                    for j in range(0, m):
+                        xhat = np.delete(xhat, 0)
+                    xhat = np.append(xhat, yhat)
+                else:
+                    diff = m - k
+                    xhat = yhat[diff:-1]
                 xhat = np.expand_dims(xhat, axis=1)
 
         losses = np.array(losses)

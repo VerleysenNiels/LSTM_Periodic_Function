@@ -38,7 +38,7 @@ SEED = 36947
 Build a training or testing dataset with values from given function with given sampling rate.
 Group k previous true values as next input for the model.
 """
-def build_dataset(function, k, sampling_rate, test=False):
+def build_dataset(function, k, sampling_rate, m=1, test=False):
     values = []
     X = []
     Y = []
@@ -46,15 +46,18 @@ def build_dataset(function, k, sampling_rate, test=False):
     startpoint = randint(0,100)
     
     #Generate values
-    for i in range(startpoint, size + k + startpoint):
+    for i in range(startpoint, size + k + startpoint + m):
         values.append(function.value(sampling_rate * i))
     
     #Use generated values to build the training data
     for i in range(0, size):
         index = i + k  # current value for Y; we start from element k in values list
-        Y.append(values[index])
+        y = []
+        for a in range(0, m):
+            y.append(values[index+a])
+        Y.append(y)
         x = []  #List with k previous values
-        for j in range (index - k, index):
+        for j in range(index - k, index):
             x.append(np.array([values[j-1]]))
         X.append(np.array(x))
     
@@ -67,13 +70,13 @@ Run basic experiment:
     Train the model on this dataset.
     Test the accuracy of the model.
 """
-def run(training_function, test_function, architecture_LSTM, k, sampling_rate, architecture_CNN=[], architecture_FC=[]):
-    model = PeriodicFunctionLSTM(architecture_LSTM, k, architecture_CNN=architecture_CNN, architecture_FC=architecture_FC)
-    X,Y = build_dataset(training_function, k, sampling_rate)
+def run(training_function, test_function, architecture_LSTM, k, sampling_rate, architecture_CNN=[], architecture_FC=[], m=1):
+    model = PeriodicFunctionLSTM(architecture_LSTM, k, architecture_CNN=architecture_CNN, architecture_FC=architecture_FC, m=m)
+    X,Y = build_dataset(training_function, k, sampling_rate, m=m)
     history = model.train(X, Y, EPOCHS, BATCH_SIZE)
     model.model.save("./Trained/sample_" + str(sampling_rate) + "_k_" + str(k))
     X,Y = build_dataset(test_function, k, sampling_rate, test=True)
-    eval = model.evaluate(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv")
+    eval = model.evaluate_multi_step(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv", m, k)
     return eval, history
 
 """
@@ -98,7 +101,7 @@ if __name__ == '__main__':
     results = []
     for sampling_rate in sampling_rates:
         for k in [32, 64, 128]:
-            result, history = run(training_function, test_function, [200, 200, 200], k, sampling_rate)  #, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
+            result, history = run(training_function, test_function, [200, 200, 200], k, sampling_rate, m=30)  #, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
             with open("./Results/Training_history/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
