@@ -90,6 +90,7 @@ if __name__ == '__main__':
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
     training_function.add_disturbing_signal(4, 0.4)
+    training_function.add_gaussian_noise(1.5)
 
     test_function = PeriodicFunction(10, 0.016667)
     test_function.add_disturbing_signal(4, 0.4)
