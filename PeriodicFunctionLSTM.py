@@ -75,7 +75,7 @@ class PeriodicFunctionLSTM:
                     xhat = x[i]
                 yhat = self.model.predict(np.expand_dims(xhat, axis=0))
                 losses.append(abs(yhat - y[i]))
-                w.writerow([y[i], yhat[0][0], x[i][-1][0], np.mean(x[i])])
+                w.writerow([y[i][0], yhat[0][0], x[i][-1][0], np.mean(x[i])])
                 xhat = np.delete(xhat, 0)
                 xhat = np.append(xhat, yhat)
                 xhat = np.expand_dims(xhat, axis=1)

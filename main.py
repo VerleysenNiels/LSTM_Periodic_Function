@@ -76,7 +76,8 @@ def run(training_function, test_function, architecture_LSTM, k, sampling_rate, a
     history = model.train(X, Y, EPOCHS, BATCH_SIZE)
     model.model.save("./Trained/sample_" + str(sampling_rate) + "_k_" + str(k))
     X,Y = build_dataset(test_function, k, sampling_rate, test=True)
-    eval = model.evaluate_multi_step(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv", m, k)
+    #eval = model.evaluate_multi_step(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv", m, k)
+    eval = model.evaluate_m1(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv")
     return eval, history
 
 """
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     results = []
     for sampling_rate in sampling_rates:
         for k in [32, 64, 128]:
-            result, history = run(training_function, test_function, [100, 100, 100], k, sampling_rate, architecture_FC=[200, 200], m=30)  #, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
+            result, history = run(training_function, test_function, [200, 200, 200], k, sampling_rate)# , architecture_FC=[200, 200], m=30)  #, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
             with open("./Results/Training_history/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
