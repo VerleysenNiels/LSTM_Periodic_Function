@@ -3,3 +3,6 @@ Experiment for my thesis. In this repository I will test the predictive quality 
 
 The network model, the training signal and the other parameters can be changed in the main.py script.
 The training progress can be plotted with the plotter.py script, which expects a location to save these plots and one or multiple paths to training progress files or directories containing these files. This script will then collect all these files and generate a plot of the mean absolute error of each.
+
+I also used this repository for architecture search on a periodic signal with a low and high frequency component.
+The best model from this search will then be tested on some possible anomalies.
