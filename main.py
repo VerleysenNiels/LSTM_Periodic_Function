@@ -141,6 +141,10 @@ def test_anomaly_detection():
     model.load("./Trained/Additional_frequency_multistep_prediction/Network_LSTM_200_200_200_gaussian_noise_0,2/sample_1_k_128")
 
     # Test signals
+    ## Regular signal
+    # test_signal = PeriodicFunction(10, 0.016667)
+    # test_signal.add_disturbing_signal(4, 0.4)
+
     ## Decaying high frequency component
     # test_signal = PeriodicFunction(10, 0.016667)
     # test_signal.add_disturbing_decaying_amp(0.01, 4, start, 0.4)
@@ -148,7 +152,7 @@ def test_anomaly_detection():
     ## Slow linear deviation
     # test_signal = PeriodicFunction(10, 0.016667)
     # test_signal.add_disturbing_signal(4, 0.4)
-    # test_signal.add_linear_deviation(-0.001, start)
+    # test_signal.add_linear_deviation(-0.01, start)
 
     ## Linear frequency deviation of low frequency component
     test_signal = PeriodicFunction(10, 0.016667)
@@ -171,13 +175,13 @@ def test_anomaly_detection():
         yhat = model.predict(np.expand_dims(X[i-1], axis=0))
 
         # Add predictions to results table
-        for j in range(128+i, TESTSET_SIZE+128):
+        for j in range(127+i, TESTSET_SIZE+128):
             if j <= i+128+29:
                 result[j] = np.append(result[j], yhat[0][j-i-129])
             else:
                 result[j] = np.append(result[j], 0)
 
-        plt.plot(range(128+i+1, i+128+30+1), yhat[0], color='r', alpha=0.1)
+        plt.plot(range(128+i, 158+i), yhat[0], color='r', alpha=0.1)
 
     # Compute L1 norm
     for i in range(0, TESTSET_SIZE-1):
@@ -186,7 +190,9 @@ def test_anomaly_detection():
         if i > 30:
             s += 1
         for j in range(s, len(result[128+i])):
-            predictions.append(result[128+i][j])
+            # Temp Fix
+            if not result[128+i][j] == 0:
+                predictions.append(result[128+i][j])
         L1_scores.append([Y[i][0], L1_norm(Y[i][0], predictions)])
 
     """Write results to a csv file"""
@@ -208,7 +214,7 @@ def test_anomaly_detection():
     red_patch = mpatches.Patch(color='r', label='Overlayed predictions')
     plt.legend(handles=[blue_patch, red_patch])
     plt.tight_layout()
-    plt.savefig("./Anomaly_test/plot_" + str(name), dpi=1000)
+    plt.savefig("./Anomaly_test/Plot_" + str(name), dpi=1000)
 
     # Plot L1 score
     tp = np.transpose(np.array(L1_scores))
