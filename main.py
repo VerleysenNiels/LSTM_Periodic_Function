@@ -133,16 +133,27 @@ def test_anomaly_detection():
 
     # Tuning variables
     start = 228     # When does the anomaly start
-    name = 'decay'  # Output file name
+    name = 'FreqDev'  # Output file name
     titlerow = ['Actual']
 
     # Load trained model
     model = PeriodicFunctionLSTM([200, 200, 200], 128)
     model.load("./Trained/Additional_frequency_multistep_prediction/Network_LSTM_200_200_200_gaussian_noise_0,2/sample_1_k_128")
 
-    # Build test signal
+    # Test signals
+    ## Decaying high frequency component
+    # test_signal = PeriodicFunction(10, 0.016667)
+    # test_signal.add_disturbing_decaying_amp(0.01, 4, start, 0.4)
+
+    ## Slow linear deviation
+    # test_signal = PeriodicFunction(10, 0.016667)
+    # test_signal.add_disturbing_signal(4, 0.4)
+    # test_signal.add_linear_deviation(-0.001, start)
+
+    ## Linear frequency deviation of low frequency component
     test_signal = PeriodicFunction(10, 0.016667)
-    test_signal.add_disturbing_decaying_amp(0.01, 4, start, 0.4)
+    test_signal.add_disturbing_signal(4, 0.4)
+    test_signal.add_frequency_deviation(0.0001, start)
 
     X, Y = build_dataset(test_signal, 128, 1, test=True)
 

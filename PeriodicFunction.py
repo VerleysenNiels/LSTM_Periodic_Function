@@ -28,6 +28,8 @@ class PeriodicFunction:
         self.increasing_freq = False
         self.increasing_both = False
         self.decaying_amp = False
+        self.linear_deviation = False
+        self.frequency_deviation = False
         self.amplitude = amplitude
         self.frequency = frequency * 6.283185
         
@@ -76,9 +78,25 @@ class PeriodicFunction:
         self.ro_probability = probability
         self.lam = lam
         self.multi = multi
+
+    # Add a linear deviation to the signal from a given startpoint
+    def add_linear_deviation(self, slope, start):
+        self.linear_deviation = True
+        self.linear_deviation_slope = slope
+        self.linear_deviation_start = start
+
+    # Add linear deviation of base frequency
+    def add_frequency_deviation(self, slope, start):
+        self.frequency_deviation = True
+        self.frequency_deviation_slope = slope
+        self.frequency_deviation_start = start
         
     def value(self, time):
-        val = self.amplitude * math.sin(time * self.frequency)
+        f = self.frequency
+        if self.frequency_deviation:
+            f = self.frequency_deviation_slope * max(0, time - self.frequency_deviation_start) + self.frequency
+
+        val = self.amplitude * math.sin(time * f)
         
         if self.gaussian:
             noise = np.random.normal(0, self.gaussian_dev, 1)
@@ -113,6 +131,10 @@ class PeriodicFunction:
                 else:
                     # High frequency signal is decaying
                     noise = amplitude * math.sin(time * self.decaying_amp_f)
+            val = val + noise
+
+        if self.linear_deviation:
+            noise = self.linear_deviation_slope * max(0, time - self.linear_deviation_start)
             val = val + noise
 
         if self.random_outliers:
