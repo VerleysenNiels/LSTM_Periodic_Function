@@ -83,13 +83,22 @@ def run(training_function, test_function, architecture_LSTM, k, sampling_rate, a
     return eval, history
 
 """
-Calculate L1 norm of given prediction
+Calculate absolute difference of given prediction
 """
-def L1_norm(real, predicted):
-    L1 = 0
+def absolute_difference(real, predicted):
+    difference = 0
     for i in range(0, len(predicted)):
-        L1 += abs(real - predicted[i])
-    return L1
+        difference += abs(real - predicted[i])
+    return difference
+
+"""
+Calculate mean absolute difference of given prediction
+"""
+def mean_absolute_difference(real, predicted):
+    difference = 0
+    for i in range(0, len(predicted)):
+        difference += abs(real - predicted[i])
+    return difference/len(predicted)
 
 """
 Use run function to test model on function with different types of noise, different k values and different sampling rates.
@@ -133,7 +142,7 @@ def test_anomaly_detection():
 
     # Tuning variables
     start = 228     # When does the anomaly start
-    name = 'FreqDev'  # Output file name
+    name = 'NoAnomaly'  # Output file name
     titlerow = ['Actual']
 
     # Load trained model
@@ -142,8 +151,8 @@ def test_anomaly_detection():
 
     # Test signals
     ## Regular signal
-    # test_signal = PeriodicFunction(10, 0.016667)
-    # test_signal.add_disturbing_signal(4, 0.4)
+    test_signal = PeriodicFunction(10, 0.016667)
+    test_signal.add_disturbing_signal(4, 0.4)
 
     ## Decaying high frequency component
     # test_signal = PeriodicFunction(10, 0.016667)
@@ -155,9 +164,9 @@ def test_anomaly_detection():
     # test_signal.add_linear_deviation(-0.01, start)
 
     ## Linear frequency deviation of low frequency component
-    test_signal = PeriodicFunction(10, 0.016667)
-    test_signal.add_disturbing_signal(4, 0.4)
-    test_signal.add_frequency_deviation(0.0001, start)
+    # test_signal = PeriodicFunction(10, 0.016667)
+    # test_signal.add_disturbing_signal(4, 0.4)
+    # test_signal.add_frequency_deviation(0.0001, start)
 
     X, Y = build_dataset(test_signal, 128, 1, test=True)
 
@@ -193,7 +202,7 @@ def test_anomaly_detection():
             # Temp Fix
             if not result[128+i][j] == 0:
                 predictions.append(result[128+i][j])
-        L1_scores.append([Y[i][0], L1_norm(Y[i][0], predictions)])
+        L1_scores.append([Y[i][0], mean_absolute_difference(Y[i][0], predictions)])
 
     """Write results to a csv file"""
     with open('./Anomaly_test/' + str(name) + '.csv', 'w', newline='') as outfile:
@@ -203,7 +212,7 @@ def test_anomaly_detection():
             w.writerow(row)
 
     """Write L1 scores to a csv file"""
-    with open('./Anomaly_test/L1_' + str(name) + '.csv', 'w', newline='') as outfile:
+    with open('./Anomaly_test/Loss_' + str(name) + '.csv', 'w', newline='') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Signal', 'L1'])
         for row in L1_scores:
@@ -214,9 +223,10 @@ def test_anomaly_detection():
     red_patch = mpatches.Patch(color='r', label='Overlayed predictions')
     plt.legend(handles=[blue_patch, red_patch])
     plt.tight_layout()
-    plt.savefig("./Anomaly_test/Plot_" + str(name), dpi=1000)
+    plt.show()
+    #plt.savefig("./Anomaly_test/Plot_" + str(name), dpi=1000)
 
-    # Plot L1 score
+    # Plot scores
     tp = np.transpose(np.array(L1_scores))
     fig, ax = plt.subplots(nrows=2, ncols=1)
     ax[0].plot(tp[0], color='r')
@@ -224,12 +234,12 @@ def test_anomaly_detection():
     ax[0].set_ylabel("Signal")
     ax[0].set_xlim(0, TESTSET_SIZE)
     ax[0].set_title('Anomalous signal')
-    ax[1].set_ylabel("L1 norm")
+    ax[1].set_ylabel("Mean absolute error")
     ax[1].set_xlabel("Step")
     ax[1].set_xlim(0, TESTSET_SIZE)
-    ax[1].set_title('L1 norm')
+    ax[1].set_title('Loss')
     plt.tight_layout()
-    plt.savefig("./Anomaly_test/Plot_L1_" + str(name), dpi=1000)
+    plt.savefig("./Anomaly_test/Plot_Loss_" + str(name), dpi=1000)
 
 if __name__ == '__main__':
     seed(SEED)
