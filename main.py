@@ -108,7 +108,7 @@ def train_and_test():
     """Determine function"""
     training_function = PeriodicFunction(10, 0.016667)
     training_function.add_disturbing_signal(4, 0.4)
-    training_function.add_gaussian_noise(0.2)
+    #training_function.add_gaussian_noise(0.2)
 
     test_function = PeriodicFunction(10, 0.016667)
     test_function.add_disturbing_signal(4, 0.4)
@@ -120,8 +120,7 @@ def train_and_test():
     results = []
     for sampling_rate in sampling_rates:
         for k in [32, 64, 128]:
-            result, history = run(training_function, test_function, [200, 200, 200], k,
-                                  sampling_rate)  # , architecture_FC=[200, 200], m=30)  #, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
+            result, history = run(training_function, test_function, [200, 200], k, sampling_rate)  # , architecture_FC=[200, 200], m=30)  #, architecture_FC=[200, 200])  #architecture_CNN=[[128, 6], [64, 5], [32, 4]]
             with open("./Results/Training_history/sample_" + str(sampling_rate) + "_k_" + str(k), 'wb') as outfile:
                 pickle.dump(history, outfile)
             templist = [sampling_rate, k]
@@ -244,5 +243,6 @@ def test_anomaly_detection():
 if __name__ == '__main__':
     seed(SEED)
 
-    test_anomaly_detection()
+    #test_anomaly_detection()
 
+    train_and_test()
