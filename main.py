@@ -151,7 +151,7 @@ def test_anomaly_detection():
 
     # Tuning variables
     start = 228     # When does the anomaly start
-    name = 'NoAnomaly'  # Output file name
+    name = 'Votes6_FreqDev'  # Output file name
     titlerow = ['Actual']
 
     # Load trained model
@@ -160,8 +160,8 @@ def test_anomaly_detection():
 
     # Test signals
     ## Regular signal
-    test_signal = PeriodicFunction(10, 0.016667)
-    test_signal.add_disturbing_signal(4, 0.4)
+    # test_signal = PeriodicFunction(10, 0.016667)
+    # test_signal.add_disturbing_signal(4, 0.4)
 
     ## Decaying high frequency component
     # test_signal = PeriodicFunction(10, 0.016667)
@@ -173,9 +173,9 @@ def test_anomaly_detection():
     # test_signal.add_linear_deviation(-0.01, start)
 
     ## Linear frequency deviation of low frequency component
-    # test_signal = PeriodicFunction(10, 0.016667)
-    # test_signal.add_disturbing_signal(4, 0.4)
-    # test_signal.add_frequency_deviation(0.0001, start)
+    test_signal = PeriodicFunction(10, 0.016667)
+    test_signal.add_disturbing_signal(4, 0.4)
+    test_signal.add_frequency_deviation(0.0001, start)
 
     X, Y = build_dataset(test_signal, 128, 1, test=True)
 
@@ -200,7 +200,7 @@ def test_anomaly_detection():
         plt.plot(range(128+i, 158+i), yhat[0], color='r', alpha=0.1)
 
 
-    voting_threshold = 4
+    voting_threshold = 6
     scores = []
     
     # Compute absolute error
@@ -226,7 +226,7 @@ def test_anomaly_detection():
             w.writerow(row)"""
 
     """Write L1 scores to a csv file"""
-    with open('./Anomaly_test/Votes4_' + str(name) + '.csv', 'w', newline='') as outfile:
+    with open('./Anomaly_test/' + str(name) + '.csv', 'w', newline='') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Signal', 'MAE'])
         for i in range(0, len(scores)):
@@ -249,9 +249,9 @@ def test_anomaly_detection():
     ax[0].set_title('Anomalous signal')
     ax[1].set_ylabel("Votes")
     ax[1].set_xlim(0, TESTSET_SIZE)
-    ax[1].set_title('Loss')
+    ax[1].set_title('Voting')
     plt.tight_layout()
-    plt.savefig("./Anomaly_test/Plot_Votes4_" + str(name), dpi=1000)
+    plt.savefig("./Anomaly_test/Plot_" + str(name), dpi=1000)
 
 if __name__ == '__main__':
     seed(SEED)
