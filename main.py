@@ -78,8 +78,8 @@ def run(training_function, test_function, architecture_LSTM, k, sampling_rate, a
     history = model.train(X, Y, EPOCHS, BATCH_SIZE)
     model.model.save("./Trained/sample_" + str(sampling_rate) + "_k_" + str(k))
     X,Y = build_dataset(test_function, k, sampling_rate, test=True)
-    #eval = model.evaluate_multi_step(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv", m, k)
-    eval = model.evaluate_m1(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv")
+    eval = model.evaluate_multi_step(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv", m, k)
+    #eval = model.evaluate_m1(X, Y, "./Predictions/sample_" + str(sampling_rate) + "_k_" + str(k) + ".csv")
     return eval, history
 
 """
@@ -99,6 +99,16 @@ def mean_absolute_difference(real, predicted):
     for i in range(0, len(predicted)):
         difference += abs(real - predicted[i])
     return difference/len(predicted)
+
+"""
+Voting based anomaly detection
+"""
+def vote(real, predicted, voting_threshold):
+    votes = 0
+    for i in range(0, len(predicted)):
+        if voting_threshold < abs(real - predicted[i]):
+            votes += 1
+    return votes
 
 """
 Use run function to test model on function with different types of noise, different k values and different sampling rates.
@@ -176,10 +186,8 @@ def test_anomaly_detection():
 
     np.expand_dims(np.array(result), axis=0)
 
-    L1_scores = []
-
     # Run the model
-    for i in range(0, TESTSET_SIZE):
+    for i in range(0, TESTSET_SIZE-1):
         yhat = model.predict(np.expand_dims(X[i-1], axis=0))
 
         # Add predictions to results table
@@ -191,7 +199,11 @@ def test_anomaly_detection():
 
         plt.plot(range(128+i, 158+i), yhat[0], color='r', alpha=0.1)
 
-    # Compute L1 norm
+
+    voting_threshold = 4
+    scores = []
+    
+    # Compute absolute error
     for i in range(0, TESTSET_SIZE-1):
         predictions = []
         s = 1
@@ -201,21 +213,24 @@ def test_anomaly_detection():
             # Temp Fix
             if not result[128+i][j] == 0:
                 predictions.append(result[128+i][j])
-        L1_scores.append([Y[i][0], mean_absolute_difference(Y[i][0], predictions)])
+        #scores.append(mean_absolute_difference(Y[i][0], predictions))
+        scores.append(vote(Y[i][0], predictions, voting_threshold))
 
-    """Write results to a csv file"""
+
+
+    """Write results to a csv file
     with open('./Anomaly_test/' + str(name) + '.csv', 'w', newline='') as outfile:
         w = csv.writer(outfile)
         w.writerow(titlerow)
         for row in result:
-            w.writerow(row)
+            w.writerow(row)"""
 
     """Write L1 scores to a csv file"""
-    with open('./Anomaly_test/Loss_' + str(name) + '.csv', 'w', newline='') as outfile:
+    with open('./Anomaly_test/Votes4_' + str(name) + '.csv', 'w', newline='') as outfile:
         w = csv.writer(outfile)
-        w.writerow(['Signal', 'L1'])
-        for row in L1_scores:
-            w.writerow(row)
+        w.writerow(['Signal', 'MAE'])
+        for i in range(0, len(scores)):
+            w.writerow([Y[i][0], scores[i]])
 
     # Plot predictions
     blue_patch = mpatches.Patch(color='b', label='Real signal')
@@ -226,23 +241,21 @@ def test_anomaly_detection():
     #plt.savefig("./Anomaly_test/Plot_" + str(name), dpi=1000)
 
     # Plot scores
-    tp = np.transpose(np.array(L1_scores))
     fig, ax = plt.subplots(nrows=2, ncols=1)
-    ax[0].plot(tp[0], color='r')
-    ax[1].plot(tp[1], color='r')
+    ax[0].plot(Y, color='r')
+    ax[1].plot(scores, color='r')
     ax[0].set_ylabel("Signal")
     ax[0].set_xlim(0, TESTSET_SIZE)
     ax[0].set_title('Anomalous signal')
-    ax[1].set_ylabel("Mean absolute error")
-    ax[1].set_xlabel("Step")
+    ax[1].set_ylabel("Votes")
     ax[1].set_xlim(0, TESTSET_SIZE)
     ax[1].set_title('Loss')
     plt.tight_layout()
-    plt.savefig("./Anomaly_test/Plot_Loss_" + str(name), dpi=1000)
+    plt.savefig("./Anomaly_test/Plot_Votes4_" + str(name), dpi=1000)
 
 if __name__ == '__main__':
     seed(SEED)
 
-    #test_anomaly_detection()
+    test_anomaly_detection()
 
-    train_and_test()
+    #train_and_test()

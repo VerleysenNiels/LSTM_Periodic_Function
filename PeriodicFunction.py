@@ -165,9 +165,36 @@ if __name__ == '__main__':
     #Test decay
     import matplotlib.pyplot as plt
 
-    function.add_disturbing_decaying_amp(0.01, 4, 60, 0.4)
+    # Test signals
+    ## Regular signal
+    test_signal = PeriodicFunction(10, 0.016667)
+    test_signal.add_disturbing_signal(4, 0.4)
+
+    ## Decaying high frequency component
+    #test_signal = PeriodicFunction(10, 0.016667)
+    #test_signal.add_disturbing_decaying_amp(0.01, 4, 228, 0.4)
+
+    ## Slow linear deviation
+    #test_signal = PeriodicFunction(10, 0.016667)
+    #test_signal.add_disturbing_signal(4, 0.4)
+    #test_signal.add_linear_deviation(-0.01, 228)
+
+    ## Linear frequency deviation of low frequency component
+    #test_signal = PeriodicFunction(10, 0.016667)
+    #test_signal.add_disturbing_signal(4, 0.4)
+    #test_signal.add_frequency_deviation(0.0001, 228)
+
     vals = []
-    for i in range(0, 700):
-        vals.append(function.value(i))
+    for i in range(0, 828):
+        vals.append(test_signal.value(i))
+
     plt.plot(vals)
-    plt.show()
+    plt.ylabel("Signal value")
+    plt.xlabel("Step")
+    plt.xlim(0, 828)
+    plt.ylim(-15, 15)
+    plt.title('Regular signal')
+    plt.tight_layout()
+    fig = plt.gcf()
+    fig.set_size_inches(12, 4)
+    plt.savefig("./NormalSignal", dpi=500)
