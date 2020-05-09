@@ -67,24 +67,33 @@ def generate_plots(file, name):
 
     return losses[29], losses[99], losses[199], losses[-1]
 
-def only_losses(file):
-    with open(file, "r") as infile:
-        reader = csv.reader(infile)
-        real = []
-        predicted = []
-        for row in reader:
-            if not row[0] == "Real":
-                real.append(float(row[0]))
-                predicted.append(float(row[1]))
+def only_losses(files, names, name):
+    for file in files:
+        with open(file, "r") as infile:
+            reader = csv.reader(infile)
+            real = []
+            predicted = []
+            for row in reader:
+                if not row[0] == "Real":
+                    real.append(float(row[0]))
+                    predicted.append(float(row[1]))
 
-    # calculate mean absolute error
-    losses = []
-    error = 0
-    for i in range(0, len(real)):
-        error += abs(real[i] - predicted[i])
-        losses.append(error / (i + 1))
+        # calculate mean absolute error
+        losses = []
+        error = 0
+        for i in range(0, len(real)):
+            error += abs(real[i] - predicted[i])
+            losses.append(error / (i + 1))
+        plt.plot(losses)
+    plt.ylabel("Mean absolute error")
+    plt.xlabel("M")
+    plt.xlim(0, 700)
+    plt.title('Mean absolute error as a function of M')
+    plt.legend(names)
+    plt.tight_layout()
+    plt.savefig(name, dpi=500)
+    plt.clf()
 
-    return losses[29], losses[99], losses[199], losses[-1]
 
 if __name__ == '__main__':
 
@@ -94,18 +103,12 @@ if __name__ == '__main__':
     output_folder = './Plots/MultiStep/' + network + '/'
     #os.mkdir(output_folder)
 
-    files = get_filepaths(input_folder)
+    #files = get_filepaths(input_folder)
 
     #for path, n in files:
         #name = output_folder + n.split('.')[0]
         #generate_plots(path, name)
 
-    with open('./Plots/MultiStep/Losses.csv', 'a+', newline='') as outfile:
-        writer = csv.writer(outfile)
-
-        for path, n in files:
-            loss = only_losses(path)
-            row = [network + "-" + n.split('.')[0]]
-            row.extend(loss)
-            writer.writerow(row)
-
+    names = ["single-step", "single-step with tanh activations", "single-step with Gaussian noise", "multi-step", "multi-step with Gaussian noise"]
+    files = ["./Additional_frequency/Network_200_200_200/sample_1_k_128.csv", "./Additional_frequency/Network_LSTM_200_200_200_recurrent_activation_tanh/sample_1_k_128.csv", "./Additional_frequency/Network_LSTM_200_200_200_gaussian_noise_0,2/sample_1_k_128.csv", "./Additional_frequency_multistep_prediction/Network_LSTM_200_200_200/sample_1_k_128.csv", "./Additional_frequency_multistep_prediction/Network_LSTM_200_200_200_gaussian_noise_0,2/sample_1_k_128.csv"]
+    only_losses(files, names, "absolute_error_for_M")
