@@ -151,7 +151,7 @@ def test_anomaly_detection():
 
     # Tuning variables
     start = 228     # When does the anomaly start
-    name = 'Votes6_FreqDev'  # Output file name
+    name = 'FreqDev'  # Output file name
     titlerow = ['Actual']
 
     # Load trained model
@@ -182,7 +182,7 @@ def test_anomaly_detection():
     result = list(X[0])
     result.extend(list(Y))
 
-    plt.plot(result, color='b')
+    #plt.plot(result, color='b')
 
     np.expand_dims(np.array(result), axis=0)
 
@@ -197,10 +197,9 @@ def test_anomaly_detection():
             else:
                 result[j] = np.append(result[j], 0)
 
-        plt.plot(range(128+i, 158+i), yhat[0], color='r', alpha=0.1)
+        #plt.plot(range(128+i, 158+i), yhat[0], color='r', alpha=0.1)
 
 
-    voting_threshold = 6
     scores = []
     
     # Compute absolute error
@@ -213,8 +212,7 @@ def test_anomaly_detection():
             # Temp Fix
             if not result[128+i][j] == 0:
                 predictions.append(result[128+i][j])
-        #scores.append(mean_absolute_difference(Y[i][0], predictions))
-        scores.append(vote(Y[i][0], predictions, voting_threshold))
+        scores.append(mean_absolute_difference(Y[i][0], predictions))
 
 
 
@@ -225,14 +223,14 @@ def test_anomaly_detection():
         for row in result:
             w.writerow(row)"""
 
-    """Write L1 scores to a csv file"""
+    """Write scores to a csv file
     with open('./Anomaly_test/' + str(name) + '.csv', 'w', newline='') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Signal', 'MAE'])
         for i in range(0, len(scores)):
-            w.writerow([Y[i][0], scores[i]])
+            w.writerow([Y[i][0], scores[i]])"""
 
-    # Plot predictions
+    """# Plot predictions
     blue_patch = mpatches.Patch(color='b', label='Real signal')
     red_patch = mpatches.Patch(color='r', label='Overlayed predictions')
     plt.legend(handles=[blue_patch, red_patch])
@@ -252,6 +250,45 @@ def test_anomaly_detection():
     ax[1].set_title('Voting')
     plt.tight_layout()
     plt.savefig("./Anomaly_test/Plot_" + str(name), dpi=1000)
+    """
+
+    # Test different thresholds and determine at which steps anomalies are detected
+    thresholds = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11]
+    false_positives = []
+    delays = []
+    start = 100
+
+    # For each threshold -> get detected anomalies
+    for threshold in thresholds:
+        fp = 0
+        delay = 0
+        first = True
+        for i in range(0, len(scores)):
+            # Anomaly detected?
+            if scores[i] > threshold:
+                # False detection?
+                if i+1 < start:
+                    fp += 1
+                elif first:
+                    delay = i - start + 1
+                    first = False
+        if first:
+            delays.append(None)
+        else:
+            delays.append(delay)
+        false_positives.append(fp/start)
+
+    plt.plot(thresholds, false_positives, color='r')
+    plt.xlabel("Threshold")
+    plt.ylabel("False positive rate")
+    plt.savefig("./Anomaly_test/Plot_thresh-fpr_" + str(name), dpi=500)
+    plt.clf()
+
+    plt.plot(false_positives, delays, color='r')
+    plt.xlim(0, 1)
+    plt.xlabel("False positive rate")
+    plt.ylabel("Delay")
+    plt.savefig("./Anomaly_test/Plot_fpr-delay_" + str(name), dpi=500)
 
 if __name__ == '__main__':
     seed(SEED)
